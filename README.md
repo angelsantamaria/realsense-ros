@@ -3,6 +3,10 @@ These are packages for using Intel RealSense cameras (D400 series SR300 camera a
 
 LibRealSense supported version: v2.33.1 (see [realsense2_camera release notes](https://github.com/IntelRealSense/realsense-ros/releases))
 
+## IMPORTANT NOTICE
+
+**This branch contains a code refactor that allows several RealSense T265 simultaneously**
+
 ## Installation Instructions
 
 The following instructions are written for ROS Kinetic, on **Ubuntu 16.04** but apply to ROS Melodic on **Ubuntu 18.04** as well, by replacing kinetic with melodic wherever is needed.
