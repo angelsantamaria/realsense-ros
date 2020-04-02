@@ -3,11 +3,11 @@
 
 #pragma once
 
+#include <yaml_parser.h>
+
 #include <pluginlib/class_list_macros.h>
 #include <nodelet/nodelet.h>
 #include <image_transport/image_transport.h>
-#include <ros/ros.h>
-#include <ros/package.h>
 #include <tf2_ros/static_transform_broadcaster.h>
 #include <librealsense2/rs.hpp>
 #include <librealsense2/rsutil.h>

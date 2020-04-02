@@ -42,87 +42,26 @@ RealSenseNodeFactory::~RealSenseNodeFactory()
 	    _query_threads[count].join();
 }
 
-void RealSenseNodeFactory::onInit()
+std::string RealSenseNodeFactory::parse_usb_port(std::string line)
 {
-  try
+  std::string port_id;
+  std::regex self_regex("(?:[^ ]+/usb[0-9]+[0-9./-]*/){0,1}([0-9.-]+)(:){0,1}[^ ]*", std::regex_constants::ECMAScript);
+  std::smatch base_match;
+  bool found = std::regex_match(line, base_match, self_regex);
+  if (found)
   {
-#ifdef BPDEBUG
-    std::cout << "Attach to Process: " << getpid() << std::endl;
-    std::cout << "Press <ENTER> key to continue." << std::endl;
-    std::cin.get();
-#endif
-    ros::NodeHandle nh = getNodeHandle();
-    auto privateNh = getPrivateNodeHandle();
-    
-    // Query  all parameters. 
-    // Assuming naming a prefix for each camera of type camX with X = [0..n] and n as the number of cameras
-    bool all_params_read = false;
-    int id = 0;
-    while (!all_params_read)
+    port_id = base_match[1].str();
+    if (base_match[2].str().size() == 0)    //This is libuvc string. Remove counter if exists.
     {
-      std::string device_name("cam" + std::to_string(id));
-      std::string name("");
-      std::string serial("");
-      std::string usb_port_id("");
-      std::string device_type("");
-      bool initial_reset(false);
-      // privateNh.getParam(device_name + "/name", name);
-      privateNh.getParam(device_name + "/serial_no", serial);
-      privateNh.getParam(device_name + "/usb_port_id", usb_port_id);
-      privateNh.getParam(device_name + "/device_type", device_type);
-      privateNh.getParam(device_name + "/initial_reset", initial_reset);
-
-      // If detecting a missing camera serial or device_type we consider we got all cameras
-      if (serial.empty() || device_type.empty())
-        all_params_read = true;
-
-      // Fill 
-      if (!all_params_read)
+      std::regex end_regex = std::regex(".+(-[0-9]+$)", std::regex_constants::ECMAScript);
+      bool found_end = std::regex_match(port_id, base_match, end_regex);
+      if (found_end)
       {
-        if (name.empty())
-          name = device_name;
-        _device_names.push_back(name);
-        _serial_nums.push_back(serial);
-        _usb_port_ids.push_back(usb_port_id);
-        _device_types.push_back(device_type);
-        _initial_resets.push_back(initial_reset);
-        id++;
+        port_id = port_id.substr(0, port_id.size() - base_match[1].str().size());
       }
     }
-
-    // Get all available devices
-    getDevices(_ctx.query_devices());
-
-    // Set callback for status change
-    std::function<void(rs2::event_information&)> change_device_callback_function = [this](rs2::event_information& info){change_device_callback(info);};
-    _ctx.set_devices_changed_callback(change_device_callback_function);
-
-    // Try to open each found device in a separate thread
-    for (size_t count = 0; count < _devices.size(); ++count)
-    {
-      _query_threads.push_back(std::thread([=]()
-        {
-          std::chrono::milliseconds timespan(6000);
-          while (_is_alive && !_devices_started[count])
-          {
-            if (_devices[count])
-              StartDevice(count);
-            else
-              std::this_thread::sleep_for(timespan);
-          }
-        }) );
-    }
   }
-  catch(const std::exception& ex)
-  {
-    ROS_ERROR_STREAM("An exception has been thrown: " << ex.what());
-    exit(1);
-  }
-  catch(...)
-  {
-    ROS_ERROR_STREAM("Unknown exception has occured!");
-    exit(1);
-  }
+  return port_id;
 }
 
 void RealSenseNodeFactory::getDevices(rs2::device_list list)
@@ -259,28 +198,6 @@ void RealSenseNodeFactory::getDevices(rs2::device_list list)
   }
 }
 
-std::string RealSenseNodeFactory::parse_usb_port(std::string line)
-{
-  std::string port_id;
-  std::regex self_regex("(?:[^ ]+/usb[0-9]+[0-9./-]*/){0,1}([0-9.-]+)(:){0,1}[^ ]*", std::regex_constants::ECMAScript);
-  std::smatch base_match;
-  bool found = std::regex_match(line, base_match, self_regex);
-  if (found)
-  {
-    port_id = base_match[1].str();
-    if (base_match[2].str().size() == 0)    //This is libuvc string. Remove counter if exists.
-    {
-      std::regex end_regex = std::regex(".+(-[0-9]+$)", std::regex_constants::ECMAScript);
-      bool found_end = std::regex_match(port_id, base_match, end_regex);
-      if (found_end)
-      {
-        port_id = port_id.substr(0, port_id.size() - base_match[1].str().size());
-      }
-    }
-  }
-  return port_id;
-}
-
 void RealSenseNodeFactory::change_device_callback(rs2::event_information& info)
 {
   for (size_t count = 0; count < _devices.size(); count++)
@@ -304,6 +221,92 @@ void RealSenseNodeFactory::change_device_callback(rs2::event_information& info)
         }
       }
     }
+  }
+}
+
+void RealSenseNodeFactory::onInit()
+{
+  try
+  {
+#ifdef BPDEBUG
+    std::cout << "Attach to Process: " << getpid() << std::endl;
+    std::cout << "Press <ENTER> key to continue." << std::endl;
+    std::cin.get();
+#endif
+    ros::NodeHandle nh = getNodeHandle();
+    auto privateNh = getPrivateNodeHandle();
+    
+    // Query  all parameters. 
+    // Assuming naming a prefix for each camera of type camX with X = [0..n] and n as the number of cameras
+    bool got_all_cameras = false;
+    int id = 0;
+    while (!got_all_cameras)
+    {
+      std::string param_prefix("cam" + std::to_string(id));
+      std::string device_name = "";
+      privateNh.getParam(param_prefix + "/name", device_name);
+      // If detecting a missing camera name we consider we got all cameras
+      if (device_name.empty())
+        got_all_cameras = true;
+      else
+      {
+        _device_names.push_back(device_name);
+        id++;
+      }      
+    }
+
+    // Get rest of main common params
+    for (auto device_name : _device_names)
+    {
+      ROS_INFO("Loading parameters of %s", device_name.c_str());
+      std::string serial("");
+      std::string usb_port_id("");
+      std::string device_type("");
+      bool initial_reset(false);
+
+      privateNh.getParam(device_name + "/serial_no", serial);
+      privateNh.getParam(device_name + "/usb_port_id", usb_port_id);
+      privateNh.getParam(device_name + "/device_type", device_type);
+      privateNh.getParam(device_name + "/initial_reset", initial_reset);
+
+      _serial_nums.push_back(serial);
+      _usb_port_ids.push_back(usb_port_id);
+      _device_types.push_back(device_type);
+      _initial_resets.push_back(initial_reset);
+    }
+
+    // Get all available devices
+    getDevices(_ctx.query_devices());
+
+    // Set callback for status change
+    std::function<void(rs2::event_information&)> change_device_callback_function = [this](rs2::event_information& info){change_device_callback(info);};
+    _ctx.set_devices_changed_callback(change_device_callback_function);
+
+    // Try to open each found device in a separate thread
+    for (size_t count = 0; count < _devices.size(); ++count)
+    {
+      _query_threads.push_back(std::thread([=]()
+        {
+          std::chrono::milliseconds timespan(6000);
+          while (_is_alive && !_devices_started[count])
+          {
+            if (_devices[count])
+              StartDevice(count);
+            else
+              std::this_thread::sleep_for(timespan);
+          }
+        }) );
+    }
+  }
+  catch(const std::exception& ex)
+  {
+    ROS_ERROR_STREAM("An exception has been thrown: " << ex.what());
+    exit(1);
+  }
+  catch(...)
+  {
+    ROS_ERROR_STREAM("Unknown exception has occured!");
+    exit(1);
   }
 }
 

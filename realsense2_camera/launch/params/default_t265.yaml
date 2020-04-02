@@ -1,0 +1,87 @@
+serial_no:
+usb_port_id:
+device_type: t265
+initial_reset: false
+json_file_path:
+tf_prefix:
+publish_tf: true
+tf_publish_rate: 0 # 0 for static transform
+topic_odom_in: odom_in
+calib_odom_file:
+
+publish_odom_tf: true
+odom_frame_id: odom_frame
+
+enable_color: true
+color_width: 640
+color_height: 480
+color_fps: 30
+
+enable_depth: false
+depth_width: 640
+depth_height: 480
+depth_fps: 30
+
+enable_infra1: false
+enable_infra2: false
+infra_width: 640
+infra_height: 480
+infra_fps: 30
+
+enable_fisheye: true
+enable_fisheye1: true
+enable_fisheye2: true
+fisheye_width: 848
+fisheye_height: 800
+fisheye_fps: 30
+
+enable_gyro: false
+enable_accel: false
+gyro_fps: 0
+accel_fps: 0
+gyro_fps: 200
+accel_fps: 62
+enable_gyro: true
+enable_accel: true
+enable_sync: false
+linear_accel_cov: 0.01
+unite_imu_method:
+
+enable_pointcloud: false
+pointcloud_texture_stream: RS2_STREAM_COLOR  # use RS2_STREAM_ANY to avoid using texture 
+pointcloud_texture_index: 0
+allow_no_texture_points: false
+filters:
+clip_distance: -1
+
+enable_sync: false
+align_depth: false
+
+base_frame_id: base_link
+depth_frame_id: depth_frame
+infra1_frame_id: infra1_frame
+infra2_frame_id: infra2_frame
+color_frame_id: color_frame
+fisheye_frame_id: fisheye_frame
+fisheye1_frame_id: fisheye1_frame
+fisheye2_frame_id: fisheye2_frame
+accel_frame_id: accel_frame
+gyro_frame_id: gyro_frame
+pose_frame_id: pose_frame
+depth_optical_frame_id: depth_optical_frame
+infra1_optical_frame_id: infra1_optical_frame
+infra2_optical_frame_id: infra2_optical_frame
+color_optical_frame_id: color_optical_frame
+fisheye_optical_frame_id: fisheye_optical_frame
+fisheye1_optical_frame_id: fisheye1_optical_frame
+fisheye2_optical_frame_id: fisheye2_optical_frame
+accel_optical_frame_id: accel_optical_frame
+gyro_optical_frame_id: gyro_optical_frame
+imu_optical_frame_id: imu_optical_frame
+pose_optical_frame_id: pose_optical_frame
+aligned_depth_to_color_frame_id: aligned_depth_to_color_frame
+aligned_depth_to_infra1_frame_id: aligned_depth_to_infra1_frame
+aligned_depth_to_infra2_frame_id: aligned_depth_to_infra2_frame
+aligned_depth_to_fisheye_frame_id: aligned_depth_to_fisheye_frame
+aligned_depth_to_fisheye1_frame_id: aligned_depth_to_fisheye1_frame
+aligned_depth_to_fisheye2_frame_id: aligned_depth_to_fisheye2_frame

@@ -85,9 +85,11 @@ catkin_package(
 
 add_library(${PROJECT_NAME}
     include/constants.h
+    include/yaml_parser.h
     include/realsense_node_factory.h
     include/base_realsense_node.h
     include/t265_realsense_node.h
+    src/yaml_parser.cpp
     src/realsense_node_factory.cpp
     src/base_realsense_node.cpp
     src/t265_realsense_node.cpp
