@@ -1926,14 +1926,14 @@ void BaseRealSenseNode::publishIntrinsics()
 {
     if (_enable[GYRO])
     {
-        _info_publisher[GYRO] = _node_handle.advertise<IMUInfo>("gyro/imu_info", 1, true);
+        _info_publisher[GYRO] = _node_handle.advertise<IMUInfo>(_dev_name + "/" + "gyro/imu_info", 1, true);
         IMUInfo info_msg = getImuInfo(GYRO);
         _info_publisher[GYRO].publish(info_msg);
     }
 
     if (_enable[ACCEL])
     {
-        _info_publisher[ACCEL] = _node_handle.advertise<IMUInfo>("accel/imu_info", 1, true);
+        _info_publisher[ACCEL] = _node_handle.advertise<IMUInfo>(_dev_name + "/" + "accel/imu_info", 1, true);
         IMUInfo info_msg = getImuInfo(ACCEL);
         _info_publisher[ACCEL].publish(info_msg);
     }
