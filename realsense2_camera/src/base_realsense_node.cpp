@@ -570,7 +570,9 @@ void BaseRealSenseNode::getParameters()
         ROS_DEBUG_STREAM("_enable[" << _stream_name[stream.first] << "]:" << _enable[stream]);
     }
     _pnh.param(_dev_name + "/" + "base_frame_id", _base_frame_id, DEFAULT_BASE_FRAME_ID);
+    _base_frame_id = _dev_name + "/" + _base_frame_id;
     _pnh.param(_dev_name + "/" + "odom_frame_id", _odom_frame_id, DEFAULT_ODOM_FRAME_ID);
+    _odom_frame_id = _dev_name + "/" + _odom_frame_id;
 
     std::vector<stream_index_pair> streams(IMAGE_STREAMS);
     streams.insert(streams.end(), HID_STREAMS.begin(), HID_STREAMS.end());
@@ -578,9 +580,11 @@ void BaseRealSenseNode::getParameters()
     {
         std::string param_name(_dev_name + "/" + static_cast<std::ostringstream&&>(std::ostringstream() << STREAM_NAME(stream) << "_frame_id").str());
         _pnh.param(param_name, _frame_id[stream], FRAME_ID(stream));
+        _frame_id[stream] = _dev_name + "/" + _frame_id[stream];
         ROS_DEBUG_STREAM("frame_id: reading parameter:" << param_name << " : " << _frame_id[stream]);
         param_name = _dev_name + "/" + static_cast<std::ostringstream&&>(std::ostringstream() << STREAM_NAME(stream) << "_optical_frame_id").str();
         _pnh.param(param_name, _optical_frame_id[stream], OPTICAL_FRAME_ID(stream));
+        _optical_frame_id[stream] = _dev_name + "/" + _optical_frame_id[stream];
         ROS_DEBUG_STREAM("optical: reading parameter:" << param_name << " : " << _optical_frame_id[stream]);
     }
 
@@ -596,6 +600,7 @@ void BaseRealSenseNode::getParameters()
     if (_imu_sync_method > imu_sync_method::NONE)
     {
         _pnh.param(_dev_name + "/" + "imu_optical_frame_id", _optical_frame_id[GYRO], DEFAULT_IMU_OPTICAL_FRAME_ID);
+        _optical_frame_id[GYRO] = _dev_name + "/" + _optical_frame_id[GYRO];
     }
 
     for (auto& stream : IMAGE_STREAMS)
@@ -604,6 +609,7 @@ void BaseRealSenseNode::getParameters()
         if (stream.second > 1) continue;
         std::string param_name(_dev_name + "/" + static_cast<std::ostringstream&&>(std::ostringstream() << "aligned_depth_to_" << STREAM_NAME(stream) << "_frame_id").str());
         _pnh.param(param_name, _depth_aligned_frame_id[stream], ALIGNED_DEPTH_TO_FRAME_ID(stream));
+        _depth_aligned_frame_id[stream] = _dev_name + "/" + _depth_aligned_frame_id[stream];
     }
 
     _pnh.param(_dev_name + "/" + "allow_no_texture_points", _allow_no_texture_points, ALLOW_NO_TEXTURE_POINTS);
@@ -1776,7 +1782,7 @@ void BaseRealSenseNode::publish_static_tf(const ros::Time& t,
     msg.transform.rotation.x = q.getX();
     msg.transform.rotation.y = q.getY();
     msg.transform.rotation.z = q.getZ();
-    msg.transform.rotation.w = q.getW();
+    msg.transform.rotation.w = q.getW();   
     _static_tf_msgs.push_back(msg);
 }
 
@@ -1820,7 +1826,7 @@ void BaseRealSenseNode::calcAndPublishStaticTransform(const stream_index_pair& s
     {
         publish_static_tf(transform_ts_, trans, Q, _base_frame_id, _depth_aligned_frame_id[stream]);
         publish_static_tf(transform_ts_, zero_trans, quaternion_optical, _depth_aligned_frame_id[stream], _optical_frame_id[stream]);
-    }
+    }   
 }
 
 void BaseRealSenseNode::SetBaseStream()
@@ -1841,6 +1847,13 @@ void BaseRealSenseNode::SetBaseStream()
     _base_stream = *base_stream;
 }
 
+std::vector<geometry_msgs::TransformStamped> BaseRealSenseNode::getStaticTransforms()
+{
+  if (_publish_tf && _tf_publish_rate == 0)
+    return _static_tf_msgs;
+  return std::vector<geometry_msgs::TransformStamped>();
+}
+
 void BaseRealSenseNode::publishStaticTransforms()
 {
     rs2::stream_profile base_profile = getAProfile(_base_stream);
@@ -1855,11 +1868,11 @@ void BaseRealSenseNode::publishStaticTransforms()
                 calcAndPublishStaticTransform(ienable.first, base_profile);
             }
         }
-        // Static transform for non-positive values
+        // Dynamic transform for positive values
+        // Static transform for non-positives values are expected to be published from factory using getStaticTransforms
+        // This is required to avoid broadcasting problems with multiple cameras (it's better a single broadcaster)
         if (_tf_publish_rate > 0)
             _tf_t = std::shared_ptr<std::thread>(new std::thread(boost::bind(&BaseRealSenseNode::publishDynamicTransforms, this)));
-        else
-            _static_tf_broadcaster.sendTransform(_static_tf_msgs);
     }
 
     // Publish Extrinsics Topics:

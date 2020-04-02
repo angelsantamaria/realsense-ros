@@ -14,7 +14,6 @@
 #include <sensor_msgs/Imu.h>
 #include <nav_msgs/Odometry.h>
 #include <tf/transform_broadcaster.h>
-#include <tf2_ros/static_transform_broadcaster.h>
 #include <condition_variable>
 
 #include <queue>
@@ -123,6 +122,7 @@ namespace realsense2_camera
         void toggleSensors(bool enabled);
         virtual void publishTopics() override;
         virtual void registerDynamicReconfigCb(ros::NodeHandle& nh) override;
+        virtual std::vector<geometry_msgs::TransformStamped> getStaticTransforms() override;
         virtual ~BaseRealSenseNode();
 
     public:
@@ -265,7 +265,6 @@ namespace realsense2_camera
         std::map<rs2_stream, std::string> _stream_name;
         bool _publish_tf;
         double _tf_publish_rate;
-        tf2_ros::StaticTransformBroadcaster _static_tf_broadcaster;
         tf2_ros::TransformBroadcaster _dynamic_tf_broadcaster;
         std::vector<geometry_msgs::TransformStamped> _static_tf_msgs;
         std::shared_ptr<std::thread> _tf_t;

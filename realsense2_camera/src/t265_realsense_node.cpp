@@ -9,7 +9,7 @@ T265RealsenseNode::T265RealsenseNode(ros::NodeHandle& nodeHandle,
                                      const std::string& dev_name) : 
                                      BaseRealSenseNode(nodeHandle, privateNodeHandle, dev, serial_no, dev_name),
                                      _wo_snr(dev.first<rs2::wheel_odometer>()),
-                                     _use_odom_in(false) 
+                                     _use_odom_in(false)
                                      {
                                          _monitor_options = {RS2_OPTION_ASIC_TEMPERATURE, RS2_OPTION_MOTION_MODULE_TEMPERATURE};
                                          initializeOdometryInput();
@@ -18,7 +18,7 @@ T265RealsenseNode::T265RealsenseNode(ros::NodeHandle& nodeHandle,
 void T265RealsenseNode::initializeOdometryInput()
 {
     std::string calib_odom_file;
-    _pnh.param("calib_odom_file", calib_odom_file, std::string(""));
+    _pnh.param(_dev_name + "/" + "calib_odom_file", calib_odom_file, std::string(""));
     if (calib_odom_file.empty())
     {
         ROS_INFO("No calib_odom_file. No input odometry accepted.");
@@ -53,7 +53,7 @@ void T265RealsenseNode::setupSubscribers()
     if (not _use_odom_in) return;
 
     std::string topic_odom_in;
-    _pnh.param("topic_odom_in", topic_odom_in, DEFAULT_TOPIC_ODOM_IN);
+    _pnh.param(_dev_name + "/" + "topic_odom_in", topic_odom_in, DEFAULT_TOPIC_ODOM_IN);
     ROS_INFO_STREAM("Subscribing to in_odom topic: " << topic_odom_in);
 
     _odom_subscriber = _node_handle.subscribe(topic_odom_in, 1, &T265RealsenseNode::odom_in_callback, this);
@@ -96,7 +96,7 @@ void T265RealsenseNode::calcAndPublishStaticTransform(const stream_index_pair& s
             throw e;
         }
     }
-
+    
     auto Q = rotationMatrixToQuaternion(ex.rotation);
     Q = quaternion_optical * Q * quaternion_optical.inverse();
     float3 trans{ex.translation[0], ex.translation[1], ex.translation[2]};

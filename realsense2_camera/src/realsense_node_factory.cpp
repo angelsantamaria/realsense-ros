@@ -66,7 +66,7 @@ void RealSenseNodeFactory::onInit()
       std::string usb_port_id("");
       std::string device_type("");
       bool initial_reset(false);
-      privateNh.getParam(device_name + "/name", name);
+      // privateNh.getParam(device_name + "/name", name);
       privateNh.getParam(device_name + "/serial_no", serial);
       privateNh.getParam(device_name + "/usb_port_id", usb_port_id);
       privateNh.getParam(device_name + "/device_type", device_type);
@@ -352,6 +352,7 @@ void RealSenseNodeFactory::StartDevice(const size_t& count)
 	}
 	assert(_realSenseNodes[count]);
 	_realSenseNodes[count]->publishTopics();
+  _static_tf_broadcaster.sendTransform(_realSenseNodes[count]->getStaticTransforms());
   _devices_started[count] = true;
 }
 
