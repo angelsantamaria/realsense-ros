@@ -58,22 +58,31 @@ namespace realsense2_camera
 
     private:
         void closeDevice();
-        void StartDevice();
+        void StartDevice(const size_t& count);
         void change_device_callback(rs2::event_information& info);
         void getDevice(rs2::device_list list);
         virtual void onInit() override;
         void tryGetLogSeverity(rs2_log_severity& severity) const;
         static std::string parse_usb_port(std::string line);
 
-        rs2::device _device;
-        std::unique_ptr<InterfaceRealSenseNode> _realSenseNode;
+        // rs2::device _device;
+        // std::unique_ptr<InterfaceRealSenseNode> _realSenseNode;
+        // rs2::context _ctx;
+        // std::string _serial_no;
+        // std::string _usb_port_id;
+        // std::string _device_type;
+        // bool _initial_reset;
+        // std::thread _query_thread;
+        // bool _is_alive;
+
+        std::vector<rs2::device> _devices;
+        std::vector<std::unique_ptr<InterfaceRealSenseNode>> _realSenseNodes;
         rs2::context _ctx;
-        std::string _serial_no;
-        std::string _usb_port_id;
-        std::string _device_type;
-        bool _initial_reset;
+        std::vector<std::string> _serial_nums;
+        std::vector<std::string> _usb_port_ids;
+        std::vector<std::string> _device_types;
+        std::vector<bool> _initial_resets;
         std::thread _query_thread;
         bool _is_alive;
-
     };
 }//end namespace
