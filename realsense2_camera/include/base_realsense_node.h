@@ -117,7 +117,8 @@ namespace realsense2_camera
         BaseRealSenseNode(ros::NodeHandle& nodeHandle,
                           ros::NodeHandle& privateNodeHandle,
                           rs2::device dev,
-                          const std::string& serial_no);
+                          const std::string& serial_no,
+                          const std::string& dev_name);
 
         void toggleSensors(bool enabled);
         virtual void publishTopics() override;
@@ -151,6 +152,7 @@ namespace realsense2_camera
         };
 
         bool _is_running;
+        std::string _dev_name;
         std::string _base_frame_id;
         std::string _odom_frame_id;
         std::map<stream_index_pair, std::string> _frame_id;

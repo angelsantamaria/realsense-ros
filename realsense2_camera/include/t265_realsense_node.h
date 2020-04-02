@@ -10,7 +10,8 @@ namespace realsense2_camera
             T265RealsenseNode(ros::NodeHandle& nodeHandle,
                           ros::NodeHandle& privateNodeHandle,
                           rs2::device dev,
-                          const std::string& serial_no);
+                          const std::string& serial_no,
+                          const std::string& dev_name);
             void publishTopics();
 
         protected:
