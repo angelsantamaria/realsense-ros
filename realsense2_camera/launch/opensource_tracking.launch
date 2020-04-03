@@ -1,12 +1,15 @@
 <launch>
     <arg name="offline"          default="false"/>
-    <include unless="$(arg offline)" 
-        file="$(find realsense2_camera)/launch/rs_camera.launch">
-        <arg name="align_depth" value="true"/>
-        <arg name="linear_accel_cov" value="1.0"/>
-        <arg name="unite_imu_method" value="linear_interpolation"/>
-    </include>
-    
+    <group unless="$(arg offline)" ns="realsense2_camera">
+      <param name="cam0/name"        type="str" value="camera"/>
+      <param name="camera/serial_no" type="str" value=""/>
+      <rosparam ns="camera" command="load" file="$(find realsense2_camera)/launch/params/default_rs.yaml"/>
+      <param name="camera/align_depth"      type="bool"   value="true"/>
+      <param name="camera/linear_accel_cov" type="double" value="1.0"/>
+      <param name="camera/unite_imu_method" type="str"    value="linear_interpolation"/>
+    </group>
+    <include unless="$(arg offline)" file="$(find realsense2_camera)/launch/includes/nodelet.launch.xml"/>
+
     <node pkg="imu_filter_madgwick" type="imu_filter_node" name="ImuFilter">
         <param name="use_mag" type="bool" value="false" />
         <param name="_publish_tf" type="bool" value="false" />

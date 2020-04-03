@@ -10,17 +10,17 @@
   <group ns="realsense2_camera">
     <param name="cam0/name"                  type="str" value="$(arg camera1)"/>
     <param name="$(arg camera1)/serial_no" type="str" value="$(arg serial_no_camera1)"/>
-    <rosparam ns="$(arg camera1)" command="load"   file="$(find realsense2_camera)/launch/params/default_rs.yaml"/>
+    <rosparam ns="$(arg camera1)" command="load"   file="$(find realsense2_camera)/launch/params/default_t265.yaml"/>
     <param name="$(arg camera1)/initial_reset" type="bool" value="$(arg initial_reset)"/>
 
     <param name="cam1/name"                  type="str" value="$(arg camera2)"/>
     <param name="$(arg camera2)/serial_no" type="str" value="$(arg serial_no_camera2)"/>
-    <rosparam ns="$(arg camera2)" command="load"   file="$(find realsense2_camera)/launch/params/default_rs.yaml"/>    
+    <rosparam ns="$(arg camera2)" command="load"   file="$(find realsense2_camera)/launch/params/default_t265.yaml"/>    
     <param name="$(arg camera2)/initial_reset" type="bool" value="$(arg initial_reset)"/>
 
     <param name="cam2/name"                  type="str" value="$(arg camera3)"/>
     <param name="$(arg camera3)/serial_no" type="str" value="$(arg serial_no_camera3)"/>
-    <rosparam ns="$(arg camera3)" command="load"   file="$(find realsense2_camera)/launch/params/default_rs.yaml"/>    
+    <rosparam ns="$(arg camera3)" command="load"   file="$(find realsense2_camera)/launch/params/default_t265.yaml"/>    
     <param name="$(arg camera3)/initial_reset" type="bool" value="$(arg initial_reset)"/>
   </group>
 

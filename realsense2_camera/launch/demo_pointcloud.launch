@@ -1,30 +1,21 @@
 <launch>
-  <arg name="serial_no"             default=""/>
-  <arg name="json_file_path"        default=""/>
-  <arg name="camera"                default="camera"/>
 
-  <group ns="$(arg camera)">
-    <include file="$(find realsense2_camera)/launch/includes/nodelet.launch.xml">
-      <arg name="serial_no"         value="$(arg serial_no)"/>
-      <arg name="json_file_path"    value="$(arg json_file_path)"/>
-      <arg name="depth_width"       value="640"/>
-      <arg name="depth_height"      value="480"/>
-      <arg name="depth_fps"         value="30"/>
-      <arg name="color_width"       value="640"/>
-      <arg name="color_height"      value="480"/>
-      <arg name="color_fps"         value="30"/>
-      <arg name="enable_depth"      value="true"/>
-      <arg name="enable_color"      value="true"/>
-      <arg name="enable_infra1"     value="false"/>
-      <arg name="enable_infra2"     value="false"/>
-      <arg name="enable_fisheye"    value="false"/>
-      <arg name="enable_gyro"       value="false"/>
-      <arg name="enable_accel"      value="false"/>
-      <arg name="enable_pointcloud" value="true"/>
-      <arg name="enable_sync"       value="true"/>
-      <arg name="tf_prefix"         value="$(arg camera)"/>
-    </include>
-
-    <node name="rviz" pkg="rviz" type="rviz" args="-d $(find realsense2_camera)/rviz/pointcloud.rviz" required="true" />
+  <group ns="realsense2_camera">
+    <param name="cam0/name"        type="str" value="$(arg camera)"/>
+    <param name="camera/serial_no" type="str" value="$(arg serial_no)"/>
+    <rosparam ns="camera" command="load" file="$(find realsense2_camera)/launch/params/default_rs.yaml"/>
+    <param name="camera/json_file_path"    type="str"  value="$(arg serial_no)"/>
+    <param name="camera/enable_infra1"     type="bool" value="false"/>
+    <param name="camera/enable_infra2"     type="bool" value="false"/>
+    <param name="camera/enable_fisheye"    type="bool" value="false"/>
+    <param name="camera/enable_gyro"       type="bool" value="false"/>
+    <param name="camera/enable_accel"      type="bool" value="false"/>
+    <param name="camera/enable_pointcloud" type="bool" value="true"/>
+    <param name="camera/enable_sync"       type="bool" value="true"/>
   </group>
+
+  <include file="$(find realsense2_camera)/launch/includes/nodelet.launch.xml"/>
+
+  <node name="rviz" pkg="rviz" type="rviz" args="-d $(find realsense2_camera)/rviz/pointcloud.rviz" required="true" />
+
 </launch>

@@ -7,13 +7,13 @@ T265RealsenseNode::T265RealsenseNode(ros::NodeHandle& nodeHandle,
                                      rs2::device dev,
                                      const std::string& serial_no,
                                      const std::string& dev_name) : 
-                                     BaseRealSenseNode(nodeHandle, privateNodeHandle, dev, serial_no, dev_name),
-                                     _wo_snr(dev.first<rs2::wheel_odometer>()),
-                                     _use_odom_in(false)
-                                     {
-                                         _monitor_options = {RS2_OPTION_ASIC_TEMPERATURE, RS2_OPTION_MOTION_MODULE_TEMPERATURE};
-                                         initializeOdometryInput();
-                                     }
+  BaseRealSenseNode(nodeHandle, privateNodeHandle, dev, serial_no, dev_name),
+  _wo_snr(dev.first<rs2::wheel_odometer>()),
+  _use_odom_in(false)
+{
+  _monitor_options = {RS2_OPTION_ASIC_TEMPERATURE, RS2_OPTION_MOTION_MODULE_TEMPERATURE};
+  initializeOdometryInput();
+}
 
 void T265RealsenseNode::initializeOdometryInput()
 {
@@ -96,7 +96,7 @@ void T265RealsenseNode::calcAndPublishStaticTransform(const stream_index_pair& s
             throw e;
         }
     }
-    
+
     auto Q = rotationMatrixToQuaternion(ex.rotation);
     Q = quaternion_optical * Q * quaternion_optical.inverse();
     float3 trans{ex.translation[0], ex.translation[1], ex.translation[2]};

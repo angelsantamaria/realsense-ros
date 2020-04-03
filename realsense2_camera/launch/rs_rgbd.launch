@@ -48,8 +48,6 @@ Processing enabled by this node:
   <!-- Camera device specific arguments -->
 
   <arg name="serial_no"           default=""/>
-  <arg name="usb_port_id"         default=""/>
-  <arg name="device_type"         default=""/>
   <arg name="json_file_path"      default=""/>
 
   <arg name="fisheye_width"       default="640"/>
@@ -111,9 +109,46 @@ Processing enabled by this node:
   <arg name="sw_registered_processing"        default="true" unless="$(arg align_depth)" />
   <arg name="sw_registered_processing"        default="false" if="$(arg align_depth)" />
 
-  <group ns="$(arg camera)">
+  <!-- Launch the camera device nodelet-->
+  <group ns="realsense2_camera">
+    <param name="cam0/name"        type="str" value="$(arg camera)"/>
+    <param name="$(arg camera)/serial_no" type="str" value="$(arg serial_no)"/>
+    <rosparam ns="$(arg camera)" command="load" file="$(find realsense2_camera)/launch/params/default_rs.yaml"/>
+    <param name="$(arg camera)/json_file_path"  type="str"  value="$(arg json_file_path)"/>
+    <param name="$(arg camera)/fisheye_width"   type="int"  value="$(arg fisheye_width)"/>
+    <param name="$(arg camera)/fisheye_height"  type="int"  value="$(arg fisheye_height)"/>
+    <param name="$(arg camera)/enable_fisheye1" type="bool" value="$(arg enable_fisheye)"/>
+    <param name="$(arg camera)/enable_fisheye2" type="bool" value="$(arg enable_fisheye)"/>
+    <param name="$(arg camera)/depth_width"     type="int"  value="$(arg depth_width)"/>
+    <param name="$(arg camera)/depth_height"    type="int"  value="$(arg depth_height)"/>
+    <param name="$(arg camera)/enable_depth"    type="bool" value="$(arg enable_depth)"/>
+    <param name="$(arg camera)/infra_width"     type="int"  value="$(arg infra_width)"/>
+    <param name="$(arg camera)/infra_height"    type="int"  value="$(arg infra_height)"/>
+    <param name="$(arg camera)/enable_infra1"   type="bool" value="$(arg enable_infra1)"/>
+    <param name="$(arg camera)/enable_infra2"   type="bool" value="$(arg enable_infra2)"/>
+    <param name="$(arg camera)/color_width"     type="int"  value="$(arg color_width)"/>
+    <param name="$(arg camera)/color_height"    type="int"  value="$(arg color_height)"/>
+    <param name="$(arg camera)/enable_color"    type="bool" value="$(arg enable_color)"/>
+    <param name="$(arg camera)/fisheye_fps"     type="int"  value="$(arg fisheye_fps)"/>
+    <param name="$(arg camera)/depth_fps"       type="int"  value="$(arg depth_fps)"/>
+    <param name="$(arg camera)/infra_fps"       type="int"  value="$(arg infra_fps)"/>
+    <param name="$(arg camera)/color_fps"       type="int"  value="$(arg color_fps)"/>
+    <param name="$(arg camera)/gyro_fps"        type="int"  value="$(arg gyro_fps)"/>
+    <param name="$(arg camera)/accel_fps"       type="int"  value="$(arg accel_fps)"/>
+    <param name="$(arg camera)/enable_accel"    type="int"  value="$(arg enable_accel)"/>
+    <param name="$(arg camera)/enable_gyro"     type="bool" value="$(arg enable_gyro)"/>
+    <param name="$(arg camera)/enable_pointcloud"   type="bool" value="$(arg enable_pointcloud)"/>
+    <param name="$(arg camera)/enable_sync"     type="bool" value="$(arg enable_sync)"/>
+    <param name="$(arg camera)/align_depth"     type="bool" value="$(arg align_depth)"/>
+    <param name="$(arg camera)/filters"         type="str" value="$(arg filters)"/>
+  </group>
 
-    <!-- Launch the camera device nodelet-->
+  <include file="$(find realsense2_camera)/launch/includes/nodelet.launch.xml">
+    <arg name="external_manager"         value="$(arg external_manager)"/>
+    <arg name="manager"                  value="$(arg manager)"/>
+  </include>
+
+
     <include file="$(find realsense2_camera)/launch/includes/nodelet.launch.xml">
       <arg name="external_manager"         value="$(arg external_manager)"/>
       <arg name="manager"                  value="$(arg manager)"/>
@@ -154,6 +189,8 @@ Processing enabled by this node:
       <arg name="enable_accel"             value="$(arg enable_accel)"/>
       <arg name="filters"                  value="$(arg filters)"/>
     </include>
+
+  <group ns="$(arg camera)">
 
     <!-- RGB processing -->
     <include if="$(arg rgb_processing)"

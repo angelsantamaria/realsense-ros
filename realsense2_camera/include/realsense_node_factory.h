@@ -72,13 +72,14 @@ namespace realsense2_camera
         std::vector<bool> _devices_started;
         std::vector<std::unique_ptr<InterfaceRealSenseNode>> _realSenseNodes;
         rs2::context _ctx;
+        std::vector<std::string> _user_serial_nums;
+        std::vector<bool> _user_initial_resets;
         std::vector<std::string> _serial_nums;
         std::vector<std::string> _usb_port_ids;
         std::vector<std::string> _device_types;
         std::vector<bool> _initial_resets;
         std::vector<std::thread> _query_threads;
         bool _is_alive;
-
         tf2_ros::StaticTransformBroadcaster _static_tf_broadcaster;
     };
 }//end namespace

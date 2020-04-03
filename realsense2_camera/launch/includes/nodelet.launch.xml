@@ -4,7 +4,7 @@
   <arg name="required"            default="false"/>
   <!--arg name="rosbag_filename"     default="/home/asantamaria/code/ros/t265_ws/src/realsense-ros/test_3t265_2020-04-02-15-12-30.bag"/-->
 
-  <arg name="serial_no"           default=""/>
+<!--   <arg name="serial_no"           default=""/>
   <arg name="usb_port_id"         default=""/>
   <arg name="device_type"         default=""/>
   <arg name="tf_prefix"           default=""/>
@@ -39,8 +39,8 @@
   <arg name="enable_accel"        default="true"/>
 
   <arg name="enable_pointcloud"   default="false"/>
-  <arg name="pointcloud_texture_stream" default="RS2_STREAM_COLOR"/>  <!-- use RS2_STREAM_ANY to avoid using texture -->
-  <arg name="pointcloud_texture_index"  default="0"/>
+  <arg name="pointcloud_texture_stream" default="RS2_STREAM_COLOR"/>  --> <!-- use RS2_STREAM_ANY to avoid using texture -->
+<!--   <arg name="pointcloud_texture_index"  default="0"/>
 
   <arg name="enable_sync"         default="false"/>
   <arg name="align_depth"         default="false"/>
@@ -77,9 +77,9 @@
   <arg name="aligned_depth_to_fisheye2_frame_id" default="$(arg tf_prefix)_aligned_depth_to_fisheye2_frame"/>
 
   <arg name="publish_tf"               default="true"/>
-  <arg name="tf_publish_rate"          default="0"/> <!-- 0 - static transform -->
+  <arg name="tf_publish_rate"          default="0"/>  --><!-- 0 - static transform -->
 
-  <arg name="odom_frame_id"            default="$(arg tf_prefix)_odom_frame"/>
+<!--   <arg name="odom_frame_id"            default="$(arg tf_prefix)_odom_frame"/>
   <arg name="topic_odom_in"            default="$(arg tf_prefix)/odom_in"/>
   <arg name="calib_odom_file"          default=""/>
   <arg name="publish_odom_tf"          default="true"/>
@@ -87,239 +87,31 @@
   <arg name="clip_distance"            default="-1"/>
   <arg name="linear_accel_cov"         default="0.01"/>
   <arg name="initial_reset"            default="false"/>
-  <arg name="unite_imu_method"         default="none"/> <!-- Options are: [none, copy, linear_interpolation] -->
-  <arg name="allow_no_texture_points"  default="false"/>
+  <arg name="unite_imu_method"         default="none"/>  --><!-- Options are: [none, copy, linear_interpolation] -->
+  <!-- <arg name="allow_no_texture_points"  default="false"/> -->
 
   <!-- To delete -->
-  <arg name="cam0_name" default="camera_front"/>
-  <arg name="cam1_name" default="camera_right"/>
-  <arg name="cam2_name" default="camera_left"/>
+<!--   <arg name="cam0_name"        default="camera_front"/>
+  <arg name="cam0_params_yaml" default="$(find realsense2_camera)/launch/params/default_t265.yaml"/>
 
+  <arg name="cam1_name" default="camera_right"/>
+  <arg name="cam1_params_yaml" default="$(find realsense2_camera)/launch/params/default_t265.yaml"/>
+
+  <arg name="cam2_name" default="camera_left"/>
+  <arg name="cam2_params_yaml" default="$(find realsense2_camera)/launch/params/default_t265.yaml"/>
+ -->
   <node unless="$(arg external_manager)" pkg="nodelet" type="nodelet" name="$(arg manager)" args="manager" output="screen" required="$(arg required)"/>
   <node pkg="nodelet" type="nodelet" name="realsense2_camera" args="load realsense2_camera/RealSenseNodeFactory $(arg manager)" required="$(arg required)">
-    <!-- <param name="rosbag_filename"          type="str"  value="$(arg rosbag_filename)"/> -->
-    <param name="cam0/name"                type="str"  value="$(arg cam0_name)"/>
-    <param name="cam1/name"                type="str"  value="$(arg cam1_name)"/>
-    <param name="cam2/name"                type="str"  value="$(arg cam2_name)"/>
+<!--     <param name="cam0/name"                    type="str"  value="$(arg cam0_name)"/>
+    <param name="$(arg cam0_name)/serial_no"   type="str"  value="909212111154"/>
+    <rosparam command="load" ns="$(arg cam0_name)" file="$(arg cam0_params_yaml)"/>
 
-    <param name="$(arg cam0_name)/serial_no"           type="str"  value="909212111154"/>
-    <param name="$(arg cam0_name)/usb_port_id"         type="str"  value="$(arg usb_port_id)"/>
-    <param name="$(arg cam0_name)/device_type"         type="str"  value="t265"/>
-    <param name="$(arg cam0_name)/json_file_path"           type="str"  value="$(arg json_file_path)"/>
-    <param name="$(arg cam0_name)/enable_pointcloud"        type="bool" value="$(arg enable_pointcloud)"/>
-    <param name="$(arg cam0_name)/pointcloud_texture_stream" type="str" value="$(arg pointcloud_texture_stream)"/>
-    <param name="$(arg cam0_name)/pointcloud_texture_index"  type="int" value="$(arg pointcloud_texture_index)"/>
-    <param name="$(arg cam0_name)/enable_sync"              type="bool" value="$(arg enable_sync)"/>
-    <param name="$(arg cam0_name)/align_depth"              type="bool" value="$(arg align_depth)"/>
-    <param name="$(arg cam0_name)/fisheye_width"            type="int"  value="$(arg fisheye_width)"/>
-    <param name="$(arg cam0_name)/fisheye_height"           type="int"  value="$(arg fisheye_height)"/>
-    <param name="$(arg cam0_name)/enable_fisheye"           type="bool" value="$(arg enable_fisheye)"/>
-    <param name="$(arg cam0_name)/enable_fisheye1"          type="bool" value="$(arg enable_fisheye1)"/>
-    <param name="$(arg cam0_name)/enable_fisheye2"          type="bool" value="$(arg enable_fisheye2)"/>
-    <param name="$(arg cam0_name)/depth_width"              type="int"  value="$(arg depth_width)"/>
-    <param name="$(arg cam0_name)/depth_height"             type="int"  value="$(arg depth_height)"/>
-    <param name="$(arg cam0_name)/enable_depth"             type="bool" value="$(arg enable_depth)"/>
-    <param name="$(arg cam0_name)/color_width"              type="int"  value="$(arg color_width)"/>
-    <param name="$(arg cam0_name)/color_height"             type="int"  value="$(arg color_height)"/>
-    <param name="$(arg cam0_name)/enable_color"             type="bool" value="$(arg enable_color)"/>
-    <param name="$(arg cam0_name)/infra_width"             type="int"  value="$(arg infra_width)"/>
-    <param name="$(arg cam0_name)/infra_height"            type="int"  value="$(arg infra_height)"/>
-    <param name="$(arg cam0_name)/enable_infra1"            type="bool" value="$(arg enable_infra1)"/>
-    <param name="$(arg cam0_name)/enable_infra2"            type="bool" value="$(arg enable_infra2)"/>
-    <param name="$(arg cam0_name)/fisheye_fps"              type="int"  value="$(arg fisheye_fps)"/>
-    <param name="$(arg cam0_name)/depth_fps"                type="int"  value="$(arg depth_fps)"/>
-    <param name="$(arg cam0_name)/infra_fps"               type="int"  value="$(arg infra_fps)"/>
-    <param name="$(arg cam0_name)/color_fps"                type="int"  value="$(arg color_fps)"/>
-    <param name="$(arg cam0_name)/gyro_fps"                 type="int"  value="$(arg gyro_fps)"/>
-    <param name="$(arg cam0_name)/accel_fps"                type="int"  value="$(arg accel_fps)"/>
-    <param name="$(arg cam0_name)/enable_gyro"              type="bool" value="$(arg enable_gyro)"/>
-    <param name="$(arg cam0_name)/enable_accel"             type="bool" value="$(arg enable_accel)"/>
-    <param name="$(arg cam0_name)/base_frame_id"            type="str"  value="$(arg base_frame_id)"/>
-    <param name="$(arg cam0_name)/depth_frame_id"           type="str"  value="$(arg depth_frame_id)"/>
-    <param name="$(arg cam0_name)/infra1_frame_id"          type="str"  value="$(arg infra1_frame_id)"/>
-    <param name="$(arg cam0_name)/infra2_frame_id"          type="str"  value="$(arg infra2_frame_id)"/>
-    <param name="$(arg cam0_name)/color_frame_id"           type="str"  value="$(arg color_frame_id)"/>
-    <param name="$(arg cam0_name)/fisheye_frame_id"         type="str"  value="$(arg fisheye_frame_id)"/>
-    <param name="$(arg cam0_name)/fisheye1_frame_id"        type="str"  value="$(arg fisheye1_frame_id)"/>
-    <param name="$(arg cam0_name)/fisheye2_frame_id"        type="str"  value="$(arg fisheye2_frame_id)"/>
-    <param name="$(arg cam0_name)/accel_frame_id"           type="str"  value="$(arg accel_frame_id)"/>
-    <param name="$(arg cam0_name)/gyro_frame_id"            type="str"  value="$(arg gyro_frame_id)"/>
-    <param name="$(arg cam0_name)/pose_frame_id"            type="str"  value="$(arg pose_frame_id)"/>
-    <param name="$(arg cam0_name)/depth_optical_frame_id"    type="str"  value="$(arg depth_optical_frame_id)"/>
-    <param name="$(arg cam0_name)/infra1_optical_frame_id"   type="str"  value="$(arg infra1_optical_frame_id)"/>
-    <param name="$(arg cam0_name)/infra2_optical_frame_id"   type="str"  value="$(arg infra2_optical_frame_id)"/>
-    <param name="$(arg cam0_name)/color_optical_frame_id"    type="str"  value="$(arg color_optical_frame_id)"/>
-    <param name="$(arg cam0_name)/fisheye_optical_frame_id"  type="str"  value="$(arg fisheye_optical_frame_id)"/>
-    <param name="$(arg cam0_name)/fisheye1_optical_frame_id" type="str"  value="$(arg fisheye1_optical_frame_id)"/>
-    <param name="$(arg cam0_name)/fisheye2_optical_frame_id" type="str"  value="$(arg fisheye2_optical_frame_id)"/>
-    <param name="$(arg cam0_name)/accel_optical_frame_id"    type="str"  value="$(arg accel_optical_frame_id)"/>
-    <param name="$(arg cam0_name)/gyro_optical_frame_id"     type="str"  value="$(arg gyro_optical_frame_id)"/>
-    <param name="$(arg cam0_name)/imu_optical_frame_id"      type="str"  value="$(arg imu_optical_frame_id)"/>
-    <param name="$(arg cam0_name)/pose_optical_frame_id"     type="str"  value="$(arg pose_optical_frame_id)"/>
-    <param name="$(arg cam0_name)/aligned_depth_to_color_frame_id"    type="str"  value="$(arg aligned_depth_to_color_frame_id)"/>
-    <param name="$(arg cam0_name)/aligned_depth_to_infra1_frame_id"   type="str"  value="$(arg aligned_depth_to_infra1_frame_id)"/>
-    <param name="$(arg cam0_name)/aligned_depth_to_infra2_frame_id"   type="str"  value="$(arg aligned_depth_to_infra2_frame_id)"/>
-    <param name="$(arg cam0_name)/aligned_depth_to_fisheye_frame_id"  type="str"  value="$(arg aligned_depth_to_fisheye_frame_id)"/>
-    <param name="$(arg cam0_name)/aligned_depth_to_fisheye1_frame_id" type="str"  value="$(arg aligned_depth_to_fisheye1_frame_id)"/>
-    <param name="$(arg cam0_name)/aligned_depth_to_fisheye2_frame_id" type="str"  value="$(arg aligned_depth_to_fisheye2_frame_id)"/>
-    <param name="$(arg cam0_name)/publish_tf"               type="bool"   value="$(arg publish_tf)"/>
-    <param name="$(arg cam0_name)/tf_publish_rate"          type="double" value="$(arg tf_publish_rate)"/>
-    <param name="$(arg cam0_name)/odom_frame_id"            type="str"  value="$(arg odom_frame_id)"/>
-    <param name="$(arg cam0_name)/topic_odom_in"            type="str"  value="$(arg topic_odom_in)"/>
-    <param name="$(arg cam0_name)/calib_odom_file"          type="str"    value="$(arg calib_odom_file)"/>
-    <param name="$(arg cam0_name)/publish_odom_tf"          type="bool" value="$(arg publish_odom_tf)"/>
-    <param name="$(arg cam0_name)/filters"                  type="str"    value="$(arg filters)"/>
-    <param name="$(arg cam0_name)/clip_distance"            type="double" value="$(arg clip_distance)"/>
-    <param name="$(arg cam0_name)/linear_accel_cov"         type="double" value="$(arg linear_accel_cov)"/>
-    <param name="$(arg cam0_name)/initial_reset"            type="bool"   value="$(arg initial_reset)"/>
-    <param name="$(arg cam0_name)/unite_imu_method"         type="str"    value="$(arg unite_imu_method)"/>
-    <param name="$(arg cam0_name)/allow_no_texture_points"  type="bool"   value="$(arg allow_no_texture_points)"/>
+    <param name="cam1/name"                    type="str"  value="$(arg cam1_name)"/>
+    <param name="$(arg cam1_name)/serial_no"   type="str"  value="845412111005"/>
+    <rosparam command="load" ns="$(arg cam1_name)" file="$(arg cam1_params_yaml)"/>
 
-    <param name="$(arg cam1_name)/serial_no"           type="str"  value="845412111005"/>
-    <param name="$(arg cam1_name)/usb_port_id"         type="str"  value="$(arg usb_port_id)"/>
-    <param name="$(arg cam1_name)/device_type"         type="str"  value="t265"/>
-    <param name="$(arg cam1_name)/json_file_path"           type="str"  value="$(arg json_file_path)"/>
-    <param name="$(arg cam1_name)/enable_pointcloud"        type="bool" value="$(arg enable_pointcloud)"/>
-    <param name="$(arg cam1_name)/pointcloud_texture_stream" type="str" value="$(arg pointcloud_texture_stream)"/>
-    <param name="$(arg cam1_name)/pointcloud_texture_index"  type="int" value="$(arg pointcloud_texture_index)"/>
-    <param name="$(arg cam1_name)/enable_sync"              type="bool" value="$(arg enable_sync)"/>
-    <param name="$(arg cam1_name)/align_depth"              type="bool" value="$(arg align_depth)"/>
-    <param name="$(arg cam1_name)/fisheye_width"            type="int"  value="$(arg fisheye_width)"/>
-    <param name="$(arg cam1_name)/fisheye_height"           type="int"  value="$(arg fisheye_height)"/>
-    <param name="$(arg cam1_name)/enable_fisheye"           type="bool" value="$(arg enable_fisheye)"/>
-    <param name="$(arg cam1_name)/enable_fisheye1"          type="bool" value="$(arg enable_fisheye1)"/>
-    <param name="$(arg cam1_name)/enable_fisheye2"          type="bool" value="$(arg enable_fisheye2)"/>
-    <param name="$(arg cam1_name)/depth_width"              type="int"  value="$(arg depth_width)"/>
-    <param name="$(arg cam1_name)/depth_height"             type="int"  value="$(arg depth_height)"/>
-    <param name="$(arg cam1_name)/enable_depth"             type="bool" value="$(arg enable_depth)"/>
-    <param name="$(arg cam1_name)/color_width"              type="int"  value="$(arg color_width)"/>
-    <param name="$(arg cam1_name)/color_height"             type="int"  value="$(arg color_height)"/>
-    <param name="$(arg cam1_name)/enable_color"             type="bool" value="$(arg enable_color)"/>
-    <param name="$(arg cam1_name)/infra_width"             type="int"  value="$(arg infra_width)"/>
-    <param name="$(arg cam1_name)/infra_height"            type="int"  value="$(arg infra_height)"/>
-    <param name="$(arg cam1_name)/enable_infra1"            type="bool" value="$(arg enable_infra1)"/>
-    <param name="$(arg cam1_name)/enable_infra2"            type="bool" value="$(arg enable_infra2)"/>
-    <param name="$(arg cam1_name)/fisheye_fps"              type="int"  value="$(arg fisheye_fps)"/>
-    <param name="$(arg cam1_name)/depth_fps"                type="int"  value="$(arg depth_fps)"/>
-    <param name="$(arg cam1_name)/infra_fps"               type="int"  value="$(arg infra_fps)"/>
-    <param name="$(arg cam1_name)/color_fps"                type="int"  value="$(arg color_fps)"/>
-    <param name="$(arg cam1_name)/gyro_fps"                 type="int"  value="$(arg gyro_fps)"/>
-    <param name="$(arg cam1_name)/accel_fps"                type="int"  value="$(arg accel_fps)"/>
-    <param name="$(arg cam1_name)/enable_gyro"              type="bool" value="$(arg enable_gyro)"/>
-    <param name="$(arg cam1_name)/enable_accel"             type="bool" value="$(arg enable_accel)"/>
-    <param name="$(arg cam1_name)/base_frame_id"            type="str"  value="$(arg base_frame_id)"/>
-    <param name="$(arg cam1_name)/depth_frame_id"           type="str"  value="$(arg depth_frame_id)"/>
-    <param name="$(arg cam1_name)/infra1_frame_id"          type="str"  value="$(arg infra1_frame_id)"/>
-    <param name="$(arg cam1_name)/infra2_frame_id"          type="str"  value="$(arg infra2_frame_id)"/>
-    <param name="$(arg cam1_name)/color_frame_id"           type="str"  value="$(arg color_frame_id)"/>
-    <param name="$(arg cam1_name)/fisheye_frame_id"         type="str"  value="$(arg fisheye_frame_id)"/>
-    <param name="$(arg cam1_name)/fisheye1_frame_id"        type="str"  value="$(arg fisheye1_frame_id)"/>
-    <param name="$(arg cam1_name)/fisheye2_frame_id"        type="str"  value="$(arg fisheye2_frame_id)"/>
-    <param name="$(arg cam1_name)/accel_frame_id"           type="str"  value="$(arg accel_frame_id)"/>
-    <param name="$(arg cam1_name)/gyro_frame_id"            type="str"  value="$(arg gyro_frame_id)"/>
-    <param name="$(arg cam1_name)/pose_frame_id"            type="str"  value="$(arg pose_frame_id)"/>
-    <param name="$(arg cam1_name)/depth_optical_frame_id"    type="str"  value="$(arg depth_optical_frame_id)"/>
-    <param name="$(arg cam1_name)/infra1_optical_frame_id"   type="str"  value="$(arg infra1_optical_frame_id)"/>
-    <param name="$(arg cam1_name)/infra2_optical_frame_id"   type="str"  value="$(arg infra2_optical_frame_id)"/>
-    <param name="$(arg cam1_name)/color_optical_frame_id"    type="str"  value="$(arg color_optical_frame_id)"/>
-    <param name="$(arg cam1_name)/fisheye_optical_frame_id"  type="str"  value="$(arg fisheye_optical_frame_id)"/>
-    <param name="$(arg cam1_name)/fisheye1_optical_frame_id" type="str"  value="$(arg fisheye1_optical_frame_id)"/>
-    <param name="$(arg cam1_name)/fisheye2_optical_frame_id" type="str"  value="$(arg fisheye2_optical_frame_id)"/>
-    <param name="$(arg cam1_name)/accel_optical_frame_id"    type="str"  value="$(arg accel_optical_frame_id)"/>
-    <param name="$(arg cam1_name)/gyro_optical_frame_id"     type="str"  value="$(arg gyro_optical_frame_id)"/>
-    <param name="$(arg cam1_name)/imu_optical_frame_id"      type="str"  value="$(arg imu_optical_frame_id)"/>
-    <param name="$(arg cam1_name)/pose_optical_frame_id"     type="str"  value="$(arg pose_optical_frame_id)"/>
-    <param name="$(arg cam1_name)/aligned_depth_to_color_frame_id"    type="str"  value="$(arg aligned_depth_to_color_frame_id)"/>
-    <param name="$(arg cam1_name)/aligned_depth_to_infra1_frame_id"   type="str"  value="$(arg aligned_depth_to_infra1_frame_id)"/>
-    <param name="$(arg cam1_name)/aligned_depth_to_infra2_frame_id"   type="str"  value="$(arg aligned_depth_to_infra2_frame_id)"/>
-    <param name="$(arg cam1_name)/aligned_depth_to_fisheye_frame_id"  type="str"  value="$(arg aligned_depth_to_fisheye_frame_id)"/>
-    <param name="$(arg cam1_name)/aligned_depth_to_fisheye1_frame_id" type="str"  value="$(arg aligned_depth_to_fisheye1_frame_id)"/>
-    <param name="$(arg cam1_name)/aligned_depth_to_fisheye2_frame_id" type="str"  value="$(arg aligned_depth_to_fisheye2_frame_id)"/>
-    <param name="$(arg cam1_name)/publish_tf"               type="bool"   value="$(arg publish_tf)"/>
-    <param name="$(arg cam1_name)/tf_publish_rate"          type="double" value="$(arg tf_publish_rate)"/>
-    <param name="$(arg cam1_name)/odom_frame_id"            type="str"  value="$(arg odom_frame_id)"/>
-    <param name="$(arg cam1_name)/topic_odom_in"            type="str"  value="$(arg topic_odom_in)"/>
-    <param name="$(arg cam1_name)/calib_odom_file"          type="str"    value="$(arg calib_odom_file)"/>
-    <param name="$(arg cam1_name)/publish_odom_tf"          type="bool" value="$(arg publish_odom_tf)"/>
-    <param name="$(arg cam1_name)/filters"                  type="str"    value="$(arg filters)"/>
-    <param name="$(arg cam1_name)/clip_distance"            type="double" value="$(arg clip_distance)"/>
-    <param name="$(arg cam1_name)/linear_accel_cov"         type="double" value="$(arg linear_accel_cov)"/>
-    <param name="$(arg cam1_name)/initial_reset"            type="bool"   value="$(arg initial_reset)"/>
-    <param name="$(arg cam1_name)/unite_imu_method"         type="str"    value="$(arg unite_imu_method)"/>
-    <param name="$(arg cam1_name)/allow_no_texture_points"  type="bool"   value="$(arg allow_no_texture_points)"/>
-
-    <param name="$(arg cam2_name)/serial_no"           type="str"  value="908412111064"/>
-    <param name="$(arg cam2_name)/usb_port_id"         type="str"  value="$(arg usb_port_id)"/>
-    <param name="$(arg cam2_name)/device_type"         type="str"  value="t265"/>
-    <param name="$(arg cam2_name)/json_file_path"           type="str"  value="$(arg json_file_path)"/>
-    <param name="$(arg cam2_name)/enable_pointcloud"        type="bool" value="$(arg enable_pointcloud)"/>
-    <param name="$(arg cam2_name)/pointcloud_texture_stream" type="str" value="$(arg pointcloud_texture_stream)"/>
-    <param name="$(arg cam2_name)/pointcloud_texture_index"  type="int" value="$(arg pointcloud_texture_index)"/>
-    <param name="$(arg cam2_name)/enable_sync"              type="bool" value="$(arg enable_sync)"/>
-    <param name="$(arg cam2_name)/align_depth"              type="bool" value="$(arg align_depth)"/>
-    <param name="$(arg cam2_name)/fisheye_width"            type="int"  value="$(arg fisheye_width)"/>
-    <param name="$(arg cam2_name)/fisheye_height"           type="int"  value="$(arg fisheye_height)"/>
-    <param name="$(arg cam2_name)/enable_fisheye"           type="bool" value="$(arg enable_fisheye)"/>
-    <param name="$(arg cam2_name)/enable_fisheye1"          type="bool" value="$(arg enable_fisheye1)"/>
-    <param name="$(arg cam2_name)/enable_fisheye2"          type="bool" value="$(arg enable_fisheye2)"/>
-    <param name="$(arg cam2_name)/depth_width"              type="int"  value="$(arg depth_width)"/>
-    <param name="$(arg cam2_name)/depth_height"             type="int"  value="$(arg depth_height)"/>
-    <param name="$(arg cam2_name)/enable_depth"             type="bool" value="$(arg enable_depth)"/>
-    <param name="$(arg cam2_name)/color_width"              type="int"  value="$(arg color_width)"/>
-    <param name="$(arg cam2_name)/color_height"             type="int"  value="$(arg color_height)"/>
-    <param name="$(arg cam2_name)/enable_color"             type="bool" value="$(arg enable_color)"/>
-    <param name="$(arg cam2_name)/infra_width"             type="int"  value="$(arg infra_width)"/>
-    <param name="$(arg cam2_name)/infra_height"            type="int"  value="$(arg infra_height)"/>
-    <param name="$(arg cam2_name)/enable_infra1"            type="bool" value="$(arg enable_infra1)"/>
-    <param name="$(arg cam2_name)/enable_infra2"            type="bool" value="$(arg enable_infra2)"/>
-    <param name="$(arg cam2_name)/fisheye_fps"              type="int"  value="$(arg fisheye_fps)"/>
-    <param name="$(arg cam2_name)/depth_fps"                type="int"  value="$(arg depth_fps)"/>
-    <param name="$(arg cam2_name)/infra_fps"               type="int"  value="$(arg infra_fps)"/>
-    <param name="$(arg cam2_name)/color_fps"                type="int"  value="$(arg color_fps)"/>
-    <param name="$(arg cam2_name)/gyro_fps"                 type="int"  value="$(arg gyro_fps)"/>
-    <param name="$(arg cam2_name)/accel_fps"                type="int"  value="$(arg accel_fps)"/>
-    <param name="$(arg cam2_name)/enable_gyro"              type="bool" value="$(arg enable_gyro)"/>
-    <param name="$(arg cam2_name)/enable_accel"             type="bool" value="$(arg enable_accel)"/>
-    <param name="$(arg cam2_name)/base_frame_id"            type="str"  value="$(arg base_frame_id)"/>
-    <param name="$(arg cam2_name)/depth_frame_id"           type="str"  value="$(arg depth_frame_id)"/>
-    <param name="$(arg cam2_name)/infra1_frame_id"          type="str"  value="$(arg infra1_frame_id)"/>
-    <param name="$(arg cam2_name)/infra2_frame_id"          type="str"  value="$(arg infra2_frame_id)"/>
-    <param name="$(arg cam2_name)/color_frame_id"           type="str"  value="$(arg color_frame_id)"/>
-    <param name="$(arg cam2_name)/fisheye_frame_id"         type="str"  value="$(arg fisheye_frame_id)"/>
-    <param name="$(arg cam2_name)/fisheye1_frame_id"        type="str"  value="$(arg fisheye1_frame_id)"/>
-    <param name="$(arg cam2_name)/fisheye2_frame_id"        type="str"  value="$(arg fisheye2_frame_id)"/>
-    <param name="$(arg cam2_name)/accel_frame_id"           type="str"  value="$(arg accel_frame_id)"/>
-    <param name="$(arg cam2_name)/gyro_frame_id"            type="str"  value="$(arg gyro_frame_id)"/>
-    <param name="$(arg cam2_name)/pose_frame_id"            type="str"  value="$(arg pose_frame_id)"/>
-    <param name="$(arg cam2_name)/depth_optical_frame_id"    type="str"  value="$(arg depth_optical_frame_id)"/>
-    <param name="$(arg cam2_name)/infra1_optical_frame_id"   type="str"  value="$(arg infra1_optical_frame_id)"/>
-    <param name="$(arg cam2_name)/infra2_optical_frame_id"   type="str"  value="$(arg infra2_optical_frame_id)"/>
-    <param name="$(arg cam2_name)/color_optical_frame_id"    type="str"  value="$(arg color_optical_frame_id)"/>
-    <param name="$(arg cam2_name)/fisheye_optical_frame_id"  type="str"  value="$(arg fisheye_optical_frame_id)"/>
-    <param name="$(arg cam2_name)/fisheye1_optical_frame_id" type="str"  value="$(arg fisheye1_optical_frame_id)"/>
-    <param name="$(arg cam2_name)/fisheye2_optical_frame_id" type="str"  value="$(arg fisheye2_optical_frame_id)"/>
-    <param name="$(arg cam2_name)/accel_optical_frame_id"    type="str"  value="$(arg accel_optical_frame_id)"/>
-    <param name="$(arg cam2_name)/gyro_optical_frame_id"     type="str"  value="$(arg gyro_optical_frame_id)"/>
-    <param name="$(arg cam2_name)/imu_optical_frame_id"      type="str"  value="$(arg imu_optical_frame_id)"/>
-    <param name="$(arg cam2_name)/pose_optical_frame_id"     type="str"  value="$(arg pose_optical_frame_id)"/>
-    <param name="$(arg cam2_name)/aligned_depth_to_color_frame_id"    type="str"  value="$(arg aligned_depth_to_color_frame_id)"/>
-    <param name="$(arg cam2_name)/aligned_depth_to_infra1_frame_id"   type="str"  value="$(arg aligned_depth_to_infra1_frame_id)"/>
-    <param name="$(arg cam2_name)/aligned_depth_to_infra2_frame_id"   type="str"  value="$(arg aligned_depth_to_infra2_frame_id)"/>
-    <param name="$(arg cam2_name)/aligned_depth_to_fisheye_frame_id"  type="str"  value="$(arg aligned_depth_to_fisheye_frame_id)"/>
-    <param name="$(arg cam2_name)/aligned_depth_to_fisheye1_frame_id" type="str"  value="$(arg aligned_depth_to_fisheye1_frame_id)"/>
-    <param name="$(arg cam2_name)/aligned_depth_to_fisheye2_frame_id" type="str"  value="$(arg aligned_depth_to_fisheye2_frame_id)"/>
-    <param name="$(arg cam2_name)/publish_tf"               type="bool"   value="$(arg publish_tf)"/>
-    <param name="$(arg cam2_name)/tf_publish_rate"          type="double" value="$(arg tf_publish_rate)"/>
-    <param name="$(arg cam2_name)/odom_frame_id"            type="str"  value="$(arg odom_frame_id)"/>
-    <param name="$(arg cam2_name)/topic_odom_in"            type="str"  value="$(arg topic_odom_in)"/>
-    <param name="$(arg cam2_name)/calib_odom_file"          type="str"    value="$(arg calib_odom_file)"/>
-    <param name="$(arg cam2_name)/publish_odom_tf"          type="bool" value="$(arg publish_odom_tf)"/>
-    <param name="$(arg cam2_name)/filters"                  type="str"    value="$(arg filters)"/>
-    <param name="$(arg cam2_name)/clip_distance"            type="double" value="$(arg clip_distance)"/>
-    <param name="$(arg cam2_name)/linear_accel_cov"         type="double" value="$(arg linear_accel_cov)"/>
-    <param name="$(arg cam2_name)/initial_reset"            type="bool"   value="$(arg initial_reset)"/>
-    <param name="$(arg cam2_name)/unite_imu_method"         type="str"    value="$(arg unite_imu_method)"/>
-    <param name="$(arg cam2_name)/allow_no_texture_points"  type="bool"   value="$(arg allow_no_texture_points)"/>
- 
+    <param name="cam2/name"                    type="str"  value="$(arg cam2_name)"/>
+    <param name="$(arg cam2_name)/serial_no"   type="str"  value="908412111064"/>
+    <rosparam command="load" ns="$(arg cam2_name)" file="$(arg cam2_params_yaml)"/> -->
   </node>
 </launch>

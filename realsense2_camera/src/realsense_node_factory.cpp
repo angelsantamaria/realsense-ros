@@ -74,15 +74,11 @@ void RealSenseNodeFactory::getDevices(rs2::device_list list)
     }
     else
     {
-      // Allocate for all possible devices in the list
-      _devices.resize(list.size());
-      _devices_started.resize(list.size(), false);
-
       // Get all devices
-      std::vector<bool> found_devices(list.size(), false);
-      ROS_INFO_STREAM(" ");
+      std::vector<std::string> found_user_devices;
       for (size_t count = 0; count < list.size(); count++)
       {
+        ROS_INFO_STREAM(" ");
         rs2::device dev;
         try
         {
@@ -94,83 +90,99 @@ void RealSenseNodeFactory::getDevices(rs2::device_list list)
           continue;
         }
         auto sn = dev.get_info(RS2_CAMERA_INFO_SERIAL_NUMBER);
-        ROS_INFO_STREAM("Device with serial number " << sn << " was found."<<std::endl);
+        ROS_INFO_STREAM("Device with serial number " << sn << " was found.");
         std::string pn = dev.get_info(RS2_CAMERA_INFO_PHYSICAL_PORT);
         std::string name = dev.get_info(RS2_CAMERA_INFO_NAME);
         ROS_INFO_STREAM("Device with physical ID " << pn << " was found.");
         std::vector<std::string> results;
         ROS_INFO_STREAM("Device with name " << name << " was found.");
         std::string port_id = parse_usb_port(pn);
+        bool found_port(false);
         if (port_id.empty())
         {
           std::stringstream msg;
           msg << "Error extracting usb port from device with physical ID: " << pn << std::endl << "Please report on github issue at https://github.com/IntelRealSense/realsense-ros";
-          if (_usb_port_ids[count].empty())
-          {
-            ROS_WARN_STREAM(msg.str());
-          }
-          else
-          {
-            ROS_ERROR_STREAM(msg.str());
-            ROS_ERROR_STREAM("Please use serial number instead of usb port.");
-          }
+          ROS_WARN_STREAM(msg.str());
         }
         else
         {
+          found_port = true;
           ROS_INFO_STREAM("Device with port number " << port_id << " was found.");
-          _usb_port_ids[count] = port_id;
         }
-        bool found_device_type(true);
-        if (!_device_types[count].empty())
+
+        bool found_device_type(false);
+        std::string rs_types[] = {"300", "400", "405", "410", "460", "415", "420", "420", "430", "430", "430", "435", "435i", "USB2", "L515", "T265"};
+        std::string device_type;
+        for (const std::string &type : rs_types)
         {
           std::smatch match_results;
-          std::regex device_type_regex(_device_types[count].c_str(), std::regex::icase);
+          std::regex device_type_regex(type, std::regex::icase);
           found_device_type = std::regex_search(name, match_results, device_type_regex);
+          if(found_device_type)
+          {
+            device_type = type;
+            ROS_INFO_STREAM("Device type " << device_type.c_str() << " was found.");
+            break;
+          }
         }
 
-        if ((_serial_nums[count].empty() || sn == _serial_nums[count]) && (_usb_port_ids[count].empty() || port_id == _usb_port_ids[count]) && found_device_type)
+        // Find if it's a device to consider
+        bool add_device(false);
+        bool initial_reset(false);
+        if (_user_serial_nums.empty() && found_device_type && found_port)
         {
-          _devices[count] = dev;
-          _serial_nums[count] = sn;
-          found_devices[count] = true;
+          _device_names.push_back("rs" + device_type + "_" + std::to_string(count));
+          add_device = true;
+        }
+        else if (!_user_serial_nums.empty() && found_device_type && found_port)
+        {
+          bool device_specified_by_user(false);
+          if (_user_serial_nums[0].compare("") == 0)
+          {
+            ROS_ERROR_STREAM("The requested device with serial number [" << _user_serial_nums[0] << "] is NOT found. Assigning the first serial found.");
+            _user_serial_nums[0] = sn;
+          }
+          for (size_t user_idx = 0; user_idx < _user_serial_nums.size(); ++user_idx)
+          {
+            if (_user_serial_nums[user_idx].compare(sn) == 0)
+            {
+              if (found_device_type && found_port)
+              {
+                initial_reset = _user_initial_resets[user_idx];
+                found_user_devices.push_back(sn);
+                device_specified_by_user = true;
+                add_device = true;
+                break;
+              }
+              else
+              {
+                ROS_ERROR_STREAM("User specified device with serial [" << sn << "] cannot be used. Failed to obtain its port or device type.");
+                exit(1);
+              }            
+            }
+          }
+          if (!device_specified_by_user && found_device_type && found_port)
+            ROS_WARN_STREAM("Device of type " << device_type << " with serial [" << sn << "] will not be used. Check launch file parameters if this is not correct.");
+        }
+
+        if (add_device)
+        {
+          _devices.push_back(dev);
+          _initial_resets.push_back(initial_reset);
+          _devices_started.push_back(false);
+          _usb_port_ids.push_back(port_id);
+          _serial_nums.push_back(sn);
+          _device_types.push_back(device_type);
         }
       }
 
-      for (size_t count = 0; count < list.size(); count++)
-      {
-        if (!found_devices[count])
-        {
-          // T265 could be caught by another node.
-          std::string msg ("The requested device with ");
-          bool add_and(false);
-          if (!_serial_nums[count].empty())
-          {
-            msg += "serial number " + _serial_nums[count];
-            add_and = true;
-          }
-          if (!_usb_port_ids[count].empty())
-          {
-            if (add_and)
-            {
-              msg += " and ";
-            }
-            msg += "usb port id " + _usb_port_ids[count];
-            add_and = true;
-          }
-          if (!_device_types[count].empty())
-          {
-            if (add_and)
-            {
-              msg += " and ";
-            }
-            msg += "device name containing " + _device_types[count];
-          }
-          msg += " is NOT found. Will Try again.";
-          ROS_ERROR_STREAM(msg);
-        }
-      }
+      // Let user know about specified devices that could not be found
+      for (auto user_sn : _user_serial_nums)
+        if (std::find(found_user_devices.begin(), found_user_devices.end(), user_sn) == found_user_devices.end())
+          ROS_ERROR_STREAM("The requested device with serial number " << user_sn << " is NOT found. Will Try again.");
     }
   }
+  ROS_INFO_STREAM(" ");
 
   for (size_t count = 0; count < _devices.size(); count++)
   {
@@ -179,7 +191,6 @@ void RealSenseNodeFactory::getDevices(rs2::device_list list)
     {
       _ctx.unload_tracking_module();
     }
-  
     if (_devices[count] && _initial_resets[count])
     {
       _initial_resets[count] = false;
@@ -260,19 +271,14 @@ void RealSenseNodeFactory::onInit()
     {
       ROS_INFO("Loading parameters of %s", device_name.c_str());
       std::string serial("");
-      std::string usb_port_id("");
       std::string device_type("");
       bool initial_reset(false);
 
-      privateNh.getParam(device_name + "/serial_no", serial);
-      privateNh.getParam(device_name + "/usb_port_id", usb_port_id);
-      privateNh.getParam(device_name + "/device_type", device_type);
-      privateNh.getParam(device_name + "/initial_reset", initial_reset);
+      if (privateNh.getParam(device_name + "/serial_no", serial))
+        _user_serial_nums.push_back(serial);
 
-      _serial_nums.push_back(serial);
-      _usb_port_ids.push_back(usb_port_id);
-      _device_types.push_back(device_type);
-      _initial_resets.push_back(initial_reset);
+      if (privateNh.getParam(device_name + "/initial_reset", initial_reset))
+        _user_initial_resets.push_back(initial_reset);
     }
 
     // Get all available devices
@@ -346,7 +352,7 @@ void RealSenseNodeFactory::StartDevice(const size_t& count)
   		_realSenseNodes[count] = std::unique_ptr<BaseRealSenseNode>(new BaseRealSenseNode(nh, privateNh, _devices[count], _serial_nums[count], _device_names[count]));
   		break;
   	case RS_T265_PID:
-  		_realSenseNodes[count] = std::unique_ptr<T265RealsenseNode>(new T265RealsenseNode(nh, privateNh, _devices[count], _serial_nums[count], _device_names[count]));
+      		_realSenseNodes[count] = std::unique_ptr<T265RealsenseNode>(new T265RealsenseNode(nh, privateNh, _devices[count], _serial_nums[count], _device_names[count]));
   		break;
   	default:
   		ROS_FATAL_STREAM("Unsupported device!" << " Product ID: 0x" << pid_str);
