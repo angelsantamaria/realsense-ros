@@ -190,6 +190,7 @@ void BaseRealSenseNode::publishTopics()
     registerDynamicReconfigCb(_node_handle);
     setupErrorCallback();
     enable_devices();
+    setupSubscribers();
     setupPublishers();
     setupStreams();
     SetBaseStream();
@@ -764,6 +765,25 @@ void BaseRealSenseNode::setupDevice()
         ROS_ERROR_STREAM("Unknown exception has occured!");
         throw;
     }
+}
+
+void BaseRealSenseNode::setupSubscribers()
+{
+    ROS_INFO("setupSubscribers...");
+
+    // Reset device
+    std::string topic_reset_in;
+    _pnh.param(_dev_name + "/" + "topic_reset_in", topic_reset_in, DEFAULT_TOPIC_ODOM_IN);
+    ROS_INFO_STREAM("Subscribing to reset topic: " << topic_reset_in);
+
+    _reset_subscriber = _node_handle.subscribe(topic_reset_in, 1, &BaseRealSenseNode::reset_callback, this);
+}
+
+void BaseRealSenseNode::reset_callback(const std_msgs::Empty::ConstPtr& msg)
+{
+    ROS_INFO("Received external petition to reset device.");
+    ROS_WARN_STREAM("Performing Hardware Reset.");
+    _dev.hardware_reset();
 }
 
 void BaseRealSenseNode::setupPublishers()

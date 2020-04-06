@@ -12,6 +12,7 @@
 #include <sensor_msgs/PointCloud2.h>
 #include <sensor_msgs/point_cloud2_iterator.h>
 #include <sensor_msgs/Imu.h>
+#include <std_msgs/Empty.h>
 #include <nav_msgs/Odometry.h>
 #include <tf/transform_broadcaster.h>
 #include <condition_variable>
@@ -121,6 +122,7 @@ namespace realsense2_camera
 
         void toggleSensors(bool enabled);
         virtual void publishTopics() override;
+        virtual void setupSubscribers();
         virtual void registerDynamicReconfigCb(ros::NodeHandle& nh) override;
         virtual std::vector<geometry_msgs::TransformStamped> getStaticTransforms() override;
         virtual ~BaseRealSenseNode();
@@ -240,6 +242,7 @@ namespace realsense2_camera
         rs2_stream rs2_string_to_stream(std::string str);
         void startMonitoring();
         void publish_temperature();
+        void reset_callback(const std_msgs::Empty::ConstPtr& msg);
 
         rs2::device _dev;
         std::map<stream_index_pair, rs2::sensor> _sensors;
@@ -283,6 +286,8 @@ namespace realsense2_camera
         std::atomic_bool _is_initialized_time_base;
         double _camera_time_base;
         std::map<stream_index_pair, std::vector<rs2::stream_profile>> _enabled_profiles;
+
+        ros::Subscriber _reset_subscriber;
 
         ros::Publisher _pointcloud_publisher;
         ros::Time _ros_time_base;
