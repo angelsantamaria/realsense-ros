@@ -776,7 +776,7 @@ void BaseRealSenseNode::setupSubscribers()
     _pnh.param(_dev_name + "/" + "topic_reset_in", topic_reset_in, DEFAULT_TOPIC_ODOM_IN);
     ROS_INFO_STREAM("Subscribing to reset topic: " << topic_reset_in);
 
-    _reset_subscriber = _node_handle.subscribe(topic_reset_in, 1, &BaseRealSenseNode::reset_callback, this);
+    _reset_subscriber = _node_handle.subscribe(_dev_name + "/" + topic_reset_in, 1, &BaseRealSenseNode::reset_callback, this);
 }
 
 void BaseRealSenseNode::reset_callback(const std_msgs::Empty::ConstPtr& msg)

@@ -12,14 +12,13 @@ namespace realsense2_camera
                           rs2::device dev,
                           const std::string& serial_no,
                           const std::string& dev_name);
-            void publishTopics();
+            void setupSubscribers() override;
 
         protected:
             void calcAndPublishStaticTransform(const stream_index_pair& stream, const rs2::stream_profile& base_profile) override;
 
         private:
             void initializeOdometryInput();
-            void setupSubscribers();
             void odom_in_callback(const nav_msgs::Odometry::ConstPtr& msg);
 
             ros::Subscriber _odom_subscriber;

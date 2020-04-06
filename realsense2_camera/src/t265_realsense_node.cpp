@@ -52,7 +52,7 @@ void T265RealsenseNode::setupSubscribers()
     _pnh.param(_dev_name + "/" + "topic_odom_in", topic_odom_in, DEFAULT_TOPIC_ODOM_IN);
     ROS_INFO_STREAM("Subscribing to in_odom topic: " << topic_odom_in);
 
-    _odom_subscriber = _node_handle.subscribe(topic_odom_in, 1, &T265RealsenseNode::odom_in_callback, this);
+    _odom_subscriber = _node_handle.subscribe(_dev_name + "/" + topic_odom_in, 1, &T265RealsenseNode::odom_in_callback, this);
 }
 
 void T265RealsenseNode::odom_in_callback(const nav_msgs::Odometry::ConstPtr& msg)

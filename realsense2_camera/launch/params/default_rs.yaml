@@ -1,4 +1,5 @@
 initial_reset: false
+topic_reset_in: reset
 json_file_path: ""
 tf_prefix: ""
 publish_tf: true
