@@ -21,25 +21,25 @@ constexpr auto realsense_ros_camera_version = REALSENSE_ROS_EMBEDDED_VERSION_STR
 PLUGINLIB_EXPORT_CLASS(realsense2_camera::RealSenseNodeFactory, nodelet::Nodelet)
 
 RealSenseNodeFactory::RealSenseNodeFactory():
-	_is_alive(true)
+  _is_alive(true)
 {
-	ROS_INFO("RealSense ROS v%s", REALSENSE_ROS_VERSION_STR);
-	ROS_INFO("Running with LibRealSense v%s", RS2_API_VERSION_STR);
+  ROS_INFO("RealSense ROS v%s", REALSENSE_ROS_VERSION_STR);
+  ROS_INFO("Running with LibRealSense v%s", RS2_API_VERSION_STR);
 
-	auto severity = rs2_log_severity::RS2_LOG_SEVERITY_WARN;
-	tryGetLogSeverity(severity);
-	if (rs2_log_severity::RS2_LOG_SEVERITY_DEBUG == severity)
-		ros::console::set_logger_level(ROSCONSOLE_DEFAULT_NAME, ros::console::levels::Debug);
+  auto severity = rs2_log_severity::RS2_LOG_SEVERITY_WARN;
+  tryGetLogSeverity(severity);
+  if (rs2_log_severity::RS2_LOG_SEVERITY_DEBUG == severity)
+    ros::console::set_logger_level(ROSCONSOLE_DEFAULT_NAME, ros::console::levels::Debug);
 
-	rs2::log_to_console(severity);
+  rs2::log_to_console(severity);
 }
 
 RealSenseNodeFactory::~RealSenseNodeFactory()
 {
-	_is_alive = false;
+  _is_alive = false;
   for (size_t count = 0; count < _query_threads.size(); ++count)
-  	if (_query_threads[count].joinable())
-	    _query_threads[count].join();
+    if (_query_threads[count].joinable())
+      _query_threads[count].join();
 }
 
 std::string RealSenseNodeFactory::parse_usb_port(std::string line)
@@ -318,8 +318,8 @@ void RealSenseNodeFactory::onInit()
 
 void RealSenseNodeFactory::StartDevice(const size_t& count)
 {
-	ros::NodeHandle nh = getNodeHandle();
-	ros::NodeHandle privateNh = getPrivateNodeHandle();
+  ros::NodeHandle nh = getNodeHandle();
+  ros::NodeHandle privateNh = getPrivateNodeHandle();
 
   assert(_devices.size() >= count);
 
@@ -329,61 +329,61 @@ void RealSenseNodeFactory::StartDevice(const size_t& count)
     if (_realSenseNodes.size() >= count)
       _realSenseNodes[count].reset();
 
-	std::string pid_str(_devices[count].get_info(RS2_CAMERA_INFO_PRODUCT_ID));
-	uint16_t pid = std::stoi(pid_str, 0, 16);
-	switch(pid)
-	{
-  	case SR300_PID:
-  	case SR300v2_PID:
-  	case RS400_PID:
-  	case RS405_PID:
-  	case RS410_PID:
-  	case RS460_PID:
-  	case RS415_PID:
-  	case RS420_PID:
-  	case RS420_MM_PID:
-  	case RS430_PID:
-  	case RS430_MM_PID:
-  	case RS430_MM_RGB_PID:
-  	case RS435_RGB_PID:
-  	case RS435i_RGB_PID:
-  	case RS_USB2_PID:
-  	case RS_L515_PID:
-  		_realSenseNodes[count] = std::unique_ptr<BaseRealSenseNode>(new BaseRealSenseNode(nh, privateNh, _devices[count], _serial_nums[count], _device_names[count]));
-  		break;
-  	case RS_T265_PID:
-      		_realSenseNodes[count] = std::unique_ptr<T265RealsenseNode>(new T265RealsenseNode(nh, privateNh, _devices[count], _serial_nums[count], _device_names[count]));
-  		break;
-  	default:
-  		ROS_FATAL_STREAM("Unsupported device!" << " Product ID: 0x" << pid_str);
-  		ros::shutdown();
-  		exit(1);
-	}
-	assert(_realSenseNodes[count]);
-	_realSenseNodes[count]->publishTopics();
+  std::string pid_str(_devices[count].get_info(RS2_CAMERA_INFO_PRODUCT_ID));
+  uint16_t pid = std::stoi(pid_str, 0, 16);
+  switch(pid)
+  {
+    case SR300_PID:
+    case SR300v2_PID:
+    case RS400_PID:
+    case RS405_PID:
+    case RS410_PID:
+    case RS460_PID:
+    case RS415_PID:
+    case RS420_PID:
+    case RS420_MM_PID:
+    case RS430_PID:
+    case RS430_MM_PID:
+    case RS430_MM_RGB_PID:
+    case RS435_RGB_PID:
+    case RS435i_RGB_PID:
+    case RS_USB2_PID:
+    case RS_L515_PID:
+      _realSenseNodes[count] = std::unique_ptr<BaseRealSenseNode>(new BaseRealSenseNode(nh, privateNh, _devices[count], _serial_nums[count], _device_names[count]));
+      break;
+    case RS_T265_PID:
+      _realSenseNodes[count] = std::unique_ptr<T265RealsenseNode>(new T265RealsenseNode(nh, privateNh, _devices[count], _serial_nums[count], _device_names[count]));
+      break;
+    default:
+      ROS_FATAL_STREAM("Unsupported device!" << " Product ID: 0x" << pid_str);
+      ros::shutdown();
+      exit(1);
+  }
+  assert(_realSenseNodes[count]);
+  _realSenseNodes[count]->publishTopics();
   _static_tf_broadcaster.sendTransform(_realSenseNodes[count]->getStaticTransforms());
   _devices_started[count] = true;
 }
 
 void RealSenseNodeFactory::tryGetLogSeverity(rs2_log_severity& severity) const
 {
-	static const char* severity_var_name = "LRS_LOG_LEVEL";
-	auto content = getenv(severity_var_name);
+  static const char* severity_var_name = "LRS_LOG_LEVEL";
+  auto content = getenv(severity_var_name);
 
-	if (content)
-	{
-		std::string content_str(content);
-		std::transform(content_str.begin(), content_str.end(), content_str.begin(), ::toupper);
+  if (content)
+  {
+    std::string content_str(content);
+    std::transform(content_str.begin(), content_str.end(), content_str.begin(), ::toupper);
 
-		for (uint32_t i = 0; i < RS2_LOG_SEVERITY_COUNT; i++)
-		{
-			auto current = std::string(rs2_log_severity_to_string((rs2_log_severity)i));
-			std::transform(current.begin(), current.end(), current.begin(), ::toupper);
-			if (content_str == current)
-			{
-				severity = (rs2_log_severity)i;
-				break;
-			}
-		}
-	}
+    for (uint32_t i = 0; i < RS2_LOG_SEVERITY_COUNT; i++)
+    {
+      auto current = std::string(rs2_log_severity_to_string((rs2_log_severity)i));
+      std::transform(current.begin(), current.end(), current.begin(), ::toupper);
+      if (content_str == current)
+      {
+        severity = (rs2_log_severity)i;
+        break;
+      }
+    }
+  }
 }
