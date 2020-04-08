@@ -782,8 +782,7 @@ void BaseRealSenseNode::setupSubscribers()
 void BaseRealSenseNode::reset_callback(const std_msgs::Empty::ConstPtr& msg)
 {
     ROS_INFO("Received external petition to reset device.");
-    ROS_WARN_STREAM("Performing Hardware Reset.");
-    _dev.hardware_reset();
+    setResetEvent();
 }
 
 void BaseRealSenseNode::setupPublishers()

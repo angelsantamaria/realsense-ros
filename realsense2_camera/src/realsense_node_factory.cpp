@@ -40,6 +40,9 @@ RealSenseNodeFactory::~RealSenseNodeFactory()
   for (size_t count = 0; count < _query_threads.size(); ++count)
     if (_query_threads[count].joinable())
       _query_threads[count].join();
+  for (size_t count = 0; count < _reset_threads.size(); ++count)
+    if (_reset_threads[count].joinable())
+      _reset_threads[count].join();
 }
 
 std::string RealSenseNodeFactory::parse_usb_port(std::string line)
@@ -291,13 +294,49 @@ void RealSenseNodeFactory::onInit()
     // Try to open each found device in a separate thread
     for (size_t count = 0; count < _devices.size(); ++count)
     {
+      // Start threads
       _query_threads.push_back(std::thread([=]()
         {
           std::chrono::milliseconds timespan(6000);
           while (_is_alive && !_devices_started[count])
           {
             if (_devices[count])
+            {
+              ROS_INFO("Trying to start");
               StartDevice(count);
+            }
+            else
+              std::this_thread::sleep_for(timespan);
+          }
+        }) );
+
+      // Reset threads
+      _reset_threads.push_back(std::thread([=]()
+        {
+          std::chrono::milliseconds timespan(1000);
+          while (_is_alive)
+          {
+            if (_devices_started[count] && _realSenseNodes[count]->resetEvent())
+            {
+              ROS_WARN_STREAM("TODO Reset in Factory.");
+              // std::cout<<getName()<<std::endl;
+              // // _realSenseNodes[count].reset();
+              // _devices[count].hardware_reset();
+              // //_devices[count] = rs2::device();
+              // _devices_started[count] = false;
+
+              // _realSenseNodes[count].reset(nullptr);
+              // // _devices[count] = rs2::device();
+
+              // // if (!_devices[count])
+              // // {
+              // //   getDevices(_ctx.query_devices());
+              // //   if (_devices[count])
+              // //   {
+              //     StartDevice(count);
+              //   // }
+              // // }
+            }
             else
               std::this_thread::sleep_for(timespan);
           }

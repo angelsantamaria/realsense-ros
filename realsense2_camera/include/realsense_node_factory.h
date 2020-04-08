@@ -50,6 +50,18 @@ namespace realsense2_camera
         virtual void registerDynamicReconfigCb(ros::NodeHandle& nh) = 0;
         virtual std::vector<geometry_msgs::TransformStamped> getStaticTransforms() = 0;
         virtual ~InterfaceRealSenseNode() = default;
+        virtual void setResetEvent(){triggered_reset = true;};
+        virtual bool resetEvent()
+        {
+          if (triggered_reset)
+          {
+            triggered_reset = false;
+            return true;
+          }
+          return false;
+        }
+    private:
+        bool triggered_reset = false;
     };
 
     class RealSenseNodeFactory : public nodelet::Nodelet
@@ -79,6 +91,7 @@ namespace realsense2_camera
         std::vector<std::string> _device_types;
         std::vector<bool> _initial_resets;
         std::vector<std::thread> _query_threads;
+        std::vector<std::thread> _reset_threads;
         bool _is_alive;
         tf2_ros::StaticTransformBroadcaster _static_tf_broadcaster;
     };
